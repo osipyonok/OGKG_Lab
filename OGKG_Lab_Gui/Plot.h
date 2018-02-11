@@ -13,8 +13,8 @@ class Plot : public QWidget
 
 public:
 	Plot(QWidget *parent = Q_NULLPTR);
-	void drawPoint(QPoint point);
-	void drawLine(QLine line);
+	void drawPoint(const QPoint & point);
+	void drawLine(const QLine & line);
 	void hidePoints();
 	void displayPoints();
 	~Plot();

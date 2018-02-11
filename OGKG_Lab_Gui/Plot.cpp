@@ -16,12 +16,13 @@ Plot::~Plot()
 {
 }
 
-void Plot::drawPoint(QPoint point) {
-	this->pointsToDraw.push_back(point);
+void Plot::drawPoint(const QPoint & point) {
+	this->pointsToDraw.push_back(QPoint(point.x(), this->size().height() - point.y()));
 }
 
-void Plot::drawLine(QLine line) {
-	this->linesToDraw.push_back(line);
+void Plot::drawLine(const QLine & line) {
+	this->linesToDraw.push_back(QLine(line.x1(), this->size().height() - line.y1(),
+		line.x2(), this->size().height() - line.y2()));
 }
 
 void Plot::paintEvent(QPaintEvent *event) {
