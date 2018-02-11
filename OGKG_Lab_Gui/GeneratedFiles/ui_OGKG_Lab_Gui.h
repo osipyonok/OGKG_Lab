@@ -19,6 +19,7 @@
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
+#include "Plot.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -26,6 +27,7 @@ class Ui_OGKG_Lab_GuiClass
 {
 public:
     QWidget *centralWidget;
+    Plot *PlotWidget;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -37,6 +39,9 @@ public:
         OGKG_Lab_GuiClass->resize(875, 625);
         centralWidget = new QWidget(OGKG_Lab_GuiClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        PlotWidget = new Plot(centralWidget);
+        PlotWidget->setObjectName(QStringLiteral("PlotWidget"));
+        PlotWidget->setGeometry(QRect(20, 20, 501, 501));
         OGKG_Lab_GuiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(OGKG_Lab_GuiClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));

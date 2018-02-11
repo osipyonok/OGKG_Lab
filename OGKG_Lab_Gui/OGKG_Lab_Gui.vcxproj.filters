@@ -45,6 +45,18 @@
     <ClCompile Include="GeneratedFiles\qrc_OGKG_Lab_Gui.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="MinimumAreaPolygonization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Plot.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Plot.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="OGKG_Lab_Gui.h">
@@ -56,9 +68,21 @@
     <CustomBuild Include="OGKG_Lab_Gui.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="Plot.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Plot.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_OGKG_Lab_Gui.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MinimumAreaPolygonization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_Plot.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
