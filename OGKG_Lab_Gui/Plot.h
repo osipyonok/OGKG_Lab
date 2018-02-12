@@ -6,6 +6,7 @@
 #include <QPoint>
 #include <QLine>
 #include <QVector>
+#include <QWheelEvent>
 
 class Plot : public QWidget
 {
@@ -19,12 +20,19 @@ public:
 	void displayPoints();
 	~Plot();
 
+
 protected:
-	void paintEvent(QPaintEvent *event);
+	void paintEvent(QPaintEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void wheelEvent(QWheelEvent * event) override;
+	void resizeEvent(QResizeEvent * event) override;
 
 private:
 	Ui::Plot ui;
 	QVector<QPoint> pointsToDraw;
 	QVector<QLine> linesToDraw;
 	bool is_points_hidden = false;
+	double scale_ratio = 1.0;
+	double scale_change = 0.0;
+	QPoint target;
 }; 

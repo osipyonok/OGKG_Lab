@@ -1,6 +1,11 @@
 #include "Plot.h"
 #include <qpainter.h>
 #include <QPaintEvent>
+#include <QDebug>
+#include <iostream>
+#include <ostream>
+
+using namespace std;
 
 Plot::Plot(QWidget *parent)
 	: QWidget(parent)
@@ -10,11 +15,37 @@ Plot::Plot(QWidget *parent)
 	Pal.setColor(QPalette::Background, Qt::white);
 	this->setAutoFillBackground(true);
 	this->setPalette(Pal);
+
+	this->target = QPoint(this->size().width() / 2, this->size().height() / 2);
 }
 
 Plot::~Plot()
 {
 }
+
+void Plot::resizeEvent(QResizeEvent * event) {
+	this->target = QPoint(this->size().width() / 2, this->size().height() / 2);
+}
+
+//zoom in (out) on wheel scroll, not working now
+void Plot::wheelEvent(QWheelEvent * event)
+{
+	this->scale_change = event->delta() / 1500.0;
+	this->scale_ratio += this->scale_change;
+	this->target = QPoint(event->pos().x(), event->pos().y());
+	this->repaint();
+}
+
+//draw point on mouse left button click
+void Plot::mousePressEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton) {
+		auto p = event->pos();
+		this->drawPoint(QPoint(p.x(), this->size().height() - p.y()));
+		this->repaint();
+	}
+}
+
 
 void Plot::drawPoint(const QPoint & point) {
 	this->pointsToDraw.push_back(QPoint(point.x(), this->size().height() - point.y()));
@@ -30,12 +61,23 @@ void Plot::paintEvent(QPaintEvent *event) {
 
 	QPainter painter(this);
 
-	painter.setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::SquareCap));
-	for (const auto & l : this->linesToDraw) painter.drawLine(l);
+	painter.setPen(QPen(Qt::black, 2 , Qt::SolidLine, Qt::SquareCap));
+	for (const auto & l : this->linesToDraw) {
+		int a = this->size().width() / 2 - this->target.x();
+		int b = this->size().height() / 2 - this->target.y();
+		QLine ll(l.x1() * this->scale_ratio + a, l.y1() * this->scale_ratio + b, 
+			l.x2() * this->scale_ratio + a, l.y2() * this->scale_ratio + b);
+		painter.drawLine(ll);
+	}
 
 	if (!this->is_points_hidden) {
 		painter.setBrush(QBrush(Qt::red));
-		for (const auto & p : this->pointsToDraw) painter.drawEllipse(p, 3, 3);
+		for (const auto & p : this->pointsToDraw) {
+			int a = this->size().width() / 2 - this->target.x();
+			int b = this->size().height() / 2 - this->target.y();
+			QPoint pp(p.x() * this->scale_ratio + a, p.y() * this->scale_ratio + b);
+			painter.drawEllipse(pp, 3 , 3);
+		}
 	}
 
 	painter.end();
