@@ -18,7 +18,15 @@ public:
 	void drawLine(const QLine & line);
 	void hidePoints();
 	void displayPoints();
+	void clearAll();
+	void clearPoints();
+	void clearLines();
+	QVector<QPoint> getPoints();
 	~Plot();
+
+signals:
+	void pointAdded(QPoint point);
+
 
 
 protected:

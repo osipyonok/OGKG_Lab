@@ -10,6 +10,10 @@ class OGKG_Lab_Gui : public QMainWindow
 public:
 	OGKG_Lab_Gui(QWidget *parent = Q_NULLPTR);
 
+public slots:
+	void run_algo_clicked(bool checked = false);
+	void pointAdded(QPoint point);
+
 private:
 	Ui::OGKG_Lab_GuiClass *ui;
 };

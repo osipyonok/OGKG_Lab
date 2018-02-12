@@ -16,6 +16,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
@@ -28,6 +29,7 @@ class Ui_OGKG_Lab_GuiClass
 public:
     QWidget *centralWidget;
     Plot *PlotWidget;
+    QPushButton *runAlgorithm;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -42,6 +44,9 @@ public:
         PlotWidget = new Plot(centralWidget);
         PlotWidget->setObjectName(QStringLiteral("PlotWidget"));
         PlotWidget->setGeometry(QRect(20, 20, 501, 501));
+        runAlgorithm = new QPushButton(centralWidget);
+        runAlgorithm->setObjectName(QStringLiteral("runAlgorithm"));
+        runAlgorithm->setGeometry(QRect(590, 340, 93, 28));
         OGKG_Lab_GuiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(OGKG_Lab_GuiClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -62,6 +67,7 @@ public:
     void retranslateUi(QMainWindow *OGKG_Lab_GuiClass)
     {
         OGKG_Lab_GuiClass->setWindowTitle(QApplication::translate("OGKG_Lab_GuiClass", "OGKG_Lab_Gui", nullptr));
+        runAlgorithm->setText(QApplication::translate("OGKG_Lab_GuiClass", "Run", nullptr));
     } // retranslateUi
 
 };

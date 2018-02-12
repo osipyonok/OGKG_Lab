@@ -41,7 +41,9 @@ void Plot::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton) {
 		auto p = event->pos();
-		this->drawPoint(QPoint(p.x(), this->size().height() - p.y()));
+		auto add = QPoint(p.x(), this->size().height() - p.y());
+		emit pointAdded(add);
+		this->drawPoint(add);
 		this->repaint();
 	}
 }
@@ -52,8 +54,8 @@ void Plot::drawPoint(const QPoint & point) {
 }
 
 void Plot::drawLine(const QLine & line) {
-	this->linesToDraw.push_back(QLine(line.x1(), this->size().height() - line.y1(),
-		line.x2(), this->size().height() - line.y2()));
+	this->linesToDraw.push_back(QLine(line.x1(), /*this->size().height() -*/ line.y1(),
+		line.x2(), /*this->size().height() -*/ line.y2()));
 }
 
 void Plot::paintEvent(QPaintEvent *event) {
@@ -67,7 +69,7 @@ void Plot::paintEvent(QPaintEvent *event) {
 		int b = this->size().height() / 2 - this->target.y();
 		QLine ll(l.x1() * this->scale_ratio + a, l.y1() * this->scale_ratio + b, 
 			l.x2() * this->scale_ratio + a, l.y2() * this->scale_ratio + b);
-		painter.drawLine(ll);
+		painter.drawLine(l);
 	}
 
 	if (!this->is_points_hidden) {
@@ -76,7 +78,7 @@ void Plot::paintEvent(QPaintEvent *event) {
 			int a = this->size().width() / 2 - this->target.x();
 			int b = this->size().height() / 2 - this->target.y();
 			QPoint pp(p.x() * this->scale_ratio + a, p.y() * this->scale_ratio + b);
-			painter.drawEllipse(pp, 3 , 3);
+			painter.drawEllipse(p, 3 , 3);
 		}
 	}
 
@@ -91,4 +93,20 @@ void Plot::hidePoints() {
 void Plot::displayPoints() {
 	this->is_points_hidden = false;
 	this->repaint();
+}
+
+void Plot::clearAll() {
+	clearPoints();
+	clearLines();
+}
+
+void  Plot::clearPoints() {
+	this->pointsToDraw.clear();
+}
+void  Plot::clearLines() {
+	this->linesToDraw.clear();
+}
+
+QVector<QPoint> Plot::getPoints() {
+	return this->pointsToDraw;
 }
