@@ -16,5 +16,5 @@ public slots:
 	void pointAdded(QPoint point);
 
 private:
-	Ui::OGKG_Lab_GuiClass *ui;
+	Ui::OGKG_Lab_GuiClass ui;
 };
