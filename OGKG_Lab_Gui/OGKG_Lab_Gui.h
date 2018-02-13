@@ -9,6 +9,7 @@ class OGKG_Lab_Gui : public QMainWindow
 
 public:
 	OGKG_Lab_Gui(QWidget *parent = Q_NULLPTR);
+	~OGKG_Lab_Gui() {}
 
 public slots:
 	void run_algo_clicked(bool checked = false);

@@ -21,6 +21,7 @@ Plot::Plot(QWidget *parent)
 
 Plot::~Plot()
 {
+	clearAll();
 }
 
 void Plot::resizeEvent(QResizeEvent * event) {
