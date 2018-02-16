@@ -85,6 +85,18 @@
     <ClInclude Include="GeneratedFiles\ui_Plot.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="floats.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="primitives.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vector2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="visibility.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OGKG_Lab_Gui.rc" />

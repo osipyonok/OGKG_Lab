@@ -1,5 +1,16 @@
 #include "MinimumAreaPolygonization.h"
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <boost/functional/hash.hpp>
+#include <qdebug.h>
+
+using namespace std;
+using namespace geometry;
+using vector_type = geometry::vec2;
+using segment_type = geometry::line_segment<vector_type>;
+using segment_comparer_type = geometry::line_segment_dist_comparer<vector_type>;
+using angle_comparer_type = geometry::angle_comparer<vector_type>;
 
 pdd middle = { 0, 0 };
 inline int quad(pdd p);
@@ -15,7 +26,6 @@ vector<pdd> MinimumAreaPolygonization::solve() {
 	solve(points, 0, points.size() - 1);
 	return points;
 }
-
 
 MinimumAreaPolygonization::~MinimumAreaPolygonization()
 {
@@ -243,6 +253,113 @@ inline bool MinimumAreaPolygonization::check_segments(pair<pdd, pdd> seg1, pair<
 	return !intersect(seg1.first, seg1.second, seg2.first, seg2.second);
 }
 
+inline void add(vector<segment_type> & L, const pair<pdd, pdd> & e) {
+	segment_type seg;
+	seg.a.x = e.first.first;
+	seg.a.y = e.first.second;
+	seg.b.x = e.second.first;
+	seg.b.y = e.second.second;
+	L.push_back(seg);
+}
+
+void MinimumAreaPolygonization::minimum_quadrilateral_visibility(vector<pair<pdd, pdd>> & seg_l, vector<pair<pdd, pdd>> & seg_r,
+	pair<pdd, pdd> & upperTangent, pair<pdd, pdd> & lowerTangent, pair<pdd, pdd> & seg1, pair<pdd, pdd> & seg2) {
+	vector<segment_type> L;
+
+	for (auto e : seg_l) add(L, e);
+	for (auto e : seg_r) add(L, e);
+	add(L, upperTangent), add(L, lowerTangent);
+
+	unordered_map<pdd, int, boost::hash<pdd>> ind;
+	unordered_set<pdd, boost::hash<pdd>> set;
+	for (int i = 0; i < seg_r.size(); ++i) set.insert(seg_r[i].first), set.insert(seg_r[i].second);
+	int ii = 0;
+	for (auto it = set.begin(); it != set.end(); ++it, ++ii) ind[*it] = ii;
+	vector<unordered_set<pdd, boost::hash<pdd>>> graph(set.size());
+
+	for (auto point : set) {
+		auto poly = visibility_polygon(vector_type{ (float)point.first, (float)point.second }, L.begin(), L.end());
+		int k = poly.size();
+		for (int i = 0; i < k; ++i) {
+			graph[ind[point]].insert({ poly[i].x, poly[i].y });
+		}
+	}
+
+	double minimum_area = DBL_MAX;
+
+	for (auto s1 : seg_l) {
+		for (auto s2 : seg_r) {
+			/*
+			A*-------*B
+	   s1	|		 |  s2
+			|		 |
+			C*-------*D
+			*/
+			pdd A = s1.first;
+			pdd C = s1.second;
+			pdd B = s2.first;
+			pdd D = s2.second;
+
+			if (intersect(A, B, C, D)) {
+				if (intersect(A, D, C, B)) {
+					continue;
+				}
+				swap(B, D);
+			}
+
+			bool can_see_a_from_b = graph[ind[B]].count(A) > 0;
+			bool can_see_c_from_d = graph[ind[D]].count(C) > 0;
+
+			if (can_see_a_from_b && can_see_c_from_d) {
+				vector<pdd> tetragon{ A, C, D, B };
+				double current_area = polygon_area(tetragon);
+				if (current_area < minimum_area) {
+					minimum_area = current_area;
+					seg1 = { A, C };
+					seg2 = { B, D };
+				}
+			}
+		}
+	}
+}
+
+void MinimumAreaPolygonization::minimum_quadrilateral_brute(vector<pair<pdd, pdd>> & seg_l, vector<pair<pdd, pdd>> & seg_r
+			, pair<pdd, pdd> & u1, pair<pdd, pdd> & u2) {
+	double ar = DBL_MAX;
+	for (auto s1 : seg_l) {
+		for (auto s2 : seg_r) {
+			vector<pair<pair<pdd, pdd>, pair<pdd, pdd>>> tmp = {
+				{ { s1.first , s2.second } ,{ s1.second , s2.first } },
+				{ { s1.first , s2.first } ,{ s1.second , s2.second } }
+			};
+
+			for (auto el : tmp) {
+
+				bool ok = true;
+
+				pair<pdd, pdd> trs1 = el.first;
+				pair<pdd, pdd> trs2 = el.second;
+				if (intersect(trs1.first, trs1.second, trs2.first, trs2.second)) continue;
+
+				for (auto s11 : seg_l) ok &= check_segments(s11, trs1), ok &= check_segments(s11, trs2);
+				for (auto s22 : seg_r) ok &= check_segments(s22, trs2), ok &= check_segments(s22, trs1);
+
+				if (ok) {
+					vector<pdd> tra;
+					tra.push_back(s1.first), tra.push_back(s1.second);
+					tra.push_back(s2.second), tra.push_back(s2.first);
+					double ca = polygon_area(tra);
+					if (ca < ar) {
+						ar = ca;
+						u1 = s1;
+						u2 = s2;
+					}
+				}
+			}
+		}
+	}
+}
+
 vector<pdd> MinimumAreaPolygonization::merge_polygons(vector<pdd> & v, int l, int r, int mid, 
 	vector<pdd> & lhull, vector<pdd> & rhull) {
 
@@ -272,50 +389,20 @@ vector<pdd> MinimumAreaPolygonization::merge_polygons(vector<pdd> & v, int l, in
 	} while (v[i2] != upper.second);
 
 	double ar = DBL_MAX;
+	pair<pdd, pdd> u11, u22;
 	pair<pdd, pdd> u1, u2;
-	for (auto s1 : seg1) {
-		for (auto s2 : seg2) {
-			vector<pair<pair<pdd, pdd>, pair<pdd, pdd>>> tmp = {
-				{ { s1.first , s2.second } ,{ s1.second , s2.first } },
-				{ { s1.first , s2.first } ,{ s1.second , s2.second } }
-			};
 
-			for (auto el : tmp) {
+	minimum_quadrilateral_brute(seg1, seg2, u1, u2);
 
-				bool ok = true;
+	//minimum_quadrilateral_visibility(seg1, seg2, upper, lower, u1, u2);
 
-				if (l == 0 && r == 11) {
-					ok = 1;
-				}
-
-				pair<pdd, pdd> trs1 = el.first; 
-				pair<pdd, pdd> trs2 = el.second; 
-				if (intersect(trs1.first, trs1.second, trs2.first, trs2.second)) continue;
-
-				for (auto s11 : seg1) ok &= check_segments(s11, trs1), ok &= check_segments(s11, trs2);
-				for (auto s22 : seg2) ok &= check_segments(s22, trs2), ok &= check_segments(s22, trs1);
-
-				if (ok) {
-					vector<pdd> tra;
-					tra.push_back(s1.first), tra.push_back(s1.second);
-					tra.push_back(s2.second), tra.push_back(s2.first);
-					double ca = polygon_area(tra);
-					if (ca < ar) {
-						ar = ca;
-						u1 = s1;
-						u2 = s2;
-					}
-				}
-			}
-		}
-	}
 	/*cout << "4gon:\n";
 	cout << u1.fi.fi << " " << u1.fi.se << " " << u1.se.fi << " " << u1.se.se << endl;
 	cout << u2.fi.fi << " " << u2.fi.se << " " << u2.se.fi << " " << u2.se.se << endl;
 	cout << "4gon's area: " << ar << endl;*/
 
 	vector<pdd> nw;
-	int it = 0;
+	int it = l;
 	pdd a = v[it];
 	while (v[it] != u1.second) ++it;
 	while (v[it] != u1.first) {

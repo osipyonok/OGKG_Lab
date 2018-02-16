@@ -3,6 +3,10 @@
 #include <vector>
 #include <algorithm>
 #include <set>
+#include <primitives.hpp>
+#include <floats.hpp>
+#include <vector2.hpp>
+#include <visibility.hpp>
 
 
 #define pdd pair<double,double>
@@ -32,7 +36,6 @@ private:
 	void brute_optimal_polygon(vector<pdd> & v, int l, int r);
 	vector<pdd> sort_points(vector<pdd> ret);
 	double polygon_area(vector<pdd> & v);
-//	static bool compare(pdd p1, pdd q1);
 	vector<pdd> brute_hull(vector<pdd> a);
 	vector<pdd> merger(vector<pdd> a, vector<pdd> b,
 		pair<pdd, pdd> upperTangent, pair<pdd, pdd> lowerTangent);
@@ -44,6 +47,10 @@ private:
 	vector<pdd> merge_polygons(vector<pdd> & v, int l, int r, int mid,
 		vector<pdd> & lhull, vector<pdd> & rhull);
 	vector<pdd> solve(vector<pdd> & v, int l, int r);
+	void minimum_quadrilateral_visibility(vector<pair<pdd, pdd>> & seg_l, vector<pair<pdd, pdd>> & seg_r,
+		pair<pdd, pdd> & upperTangent, pair<pdd, pdd> & lowerTangent, pair<pdd, pdd> & u1, pair<pdd, pdd> & u2);
+	void minimum_quadrilateral_brute(vector<pair<pdd, pdd>> & seg_l, vector<pair<pdd, pdd>> & seg_r
+			, pair<pdd, pdd> & u1, pair<pdd, pdd> & u2);
 
 	const double eps = 1e-10;
 
