@@ -47,7 +47,7 @@ inline double MinimumAreaPolygonization::cos_angle(const pdd & a, const pdd & b)
 	double bb = b.first * b.first + b.second * b.second;
 	return abs(ab) / sqrt(aa * bb);
 }
-
+/*
 inline bool MinimumAreaPolygonization::intersect_1(double a, double b, double c, double d) {
 	if (a > b) swap(a, b);
 	if (c > d) swap(c, d);
@@ -72,7 +72,7 @@ bool MinimumAreaPolygonization::intersect(pdd a, pdd b, pdd c, pdd d) {
 		return det(A1, C1, A2, C2) == 0 && det(B1, C1, B2, C2) == 0
 		&& intersect_1(a.first, b.first, c.first, d.first)
 		&& intersect_1(a.second, b.second, c.second, d.second);
-}
+}*/
 
 bool MinimumAreaPolygonization::is_polygon(vector<pair<pdd, pdd>> & pol) {
 	bool res = true;
@@ -99,7 +99,7 @@ inline int quad(pdd p) {
 		return 3;
 	return 4;
 }
-
+/*
 inline int MinimumAreaPolygonization::orientation(pdd a, pdd b, pdd c) {
 	int res = (b.second - a.second)*(c.first - b.first) -
 		(c.second - b.second)*(b.first - a.first);
@@ -109,7 +109,7 @@ inline int MinimumAreaPolygonization::orientation(pdd a, pdd b, pdd c) {
 	if (res > 0)
 		return 1;
 	return -1;
-}
+}*/
 
 bool compare(pdd p1, pdd q1) {
 	pdd p = make_pair(p1.first - middle.first,
@@ -160,12 +160,14 @@ vector<pdd> MinimumAreaPolygonization::merger(vector<pdd> a, vector<pdd> b,
 	int n1 = a.size(), n2 = b.size();
 
 	int uppera = 0, upperb = 0;
-	while (a[uppera] != upperTangent.first) ++uppera;
-	while (b[upperb] != upperTangent.second) ++upperb;
+	//while (a[uppera] != upperTangent.first) ++uppera;
+	//while (b[upperb] != upperTangent.second) ++upperb;
+	uppera = uti1, upperb = uti2;
 
 	int lowera = 0, lowerb = 0;
-	while (a[lowera] != lowerTangent.first) ++lowera;
-	while (b[lowerb] != lowerTangent.second) ++lowerb;
+	//while (a[lowera] != lowerTangent.first) ++lowera;
+	//while (b[lowerb] != lowerTangent.second) ++lowerb;
+	lowera = lti1, lowerb = lti2;
 
 	vector<pdd> ret;
 
@@ -215,14 +217,16 @@ pair<pdd, pdd> MinimumAreaPolygonization::findUpperTangent(vector<pdd> a, vector
 
 	while (!done) {
 		done = 1;
-		while (orientation(b[indb], a[inda], a[(inda + 1) % n1]) >= 0) 
+		while (orientation_(b[indb], a[inda], a[(inda + 1) % n1]) >= 0) 
 			inda = (inda + 1) % n1;
-		while (orientation(a[inda], b[indb], b[(n2 + indb - 1) % n2]) <= 0) {
+		while (orientation_(a[inda], b[indb], b[(n2 + indb - 1) % n2]) <= 0) {
 			indb = (n2 + indb - 1) % n2;
 			done = 0;
 		}
 	}
 
+	uti1 = inda;
+	uti2 = indb;
 	return { a[inda], b[indb] };
 }
 
@@ -233,15 +237,17 @@ pair<pdd, pdd> MinimumAreaPolygonization::findLowerTangent(vector<pdd> a, vector
 
 	while (!done) {
 		done = 1;
-		while (orientation(a[inda], b[indb], b[(indb + 1) % n2]) >= 0)
+		while (orientation_(a[inda], b[indb], b[(indb + 1) % n2]) >= 0)
 			indb = (indb + 1) % n2;
 
-		while (orientation(b[indb], a[inda], a[(n1 + inda - 1) % n1]) <= 0) {
+		while (orientation_(b[indb], a[inda], a[(n1 + inda - 1) % n1]) <= 0) {
 			inda = (n1 + inda - 1) % n1;
 			done = 0;
 		}
 	}
 
+	lti1 = inda;
+	lti2 = indb;
 	return { a[inda], b[indb] };
 }
 
@@ -278,7 +284,9 @@ void MinimumAreaPolygonization::minimum_quadrilateral_visibility(vector<pair<pdd
 	vector<unordered_set<pdd, boost::hash<pdd>>> graph(set.size());
 
 	for (auto point : set) {
+		long long before = clock();
 		auto poly = visibility_polygon(vector_type{ (float)point.first, (float)point.second }, L.begin(), L.end());
+		elapsed1 += clock() - before;
 		int k = poly.size();
 		for (int i = 0; i < k; ++i) {
 			graph[ind[point]].insert({ poly[i].x, poly[i].y });
@@ -375,27 +383,43 @@ vector<pdd> MinimumAreaPolygonization::merge_polygons(vector<pdd> & v, int l, in
 	while (v[i2] != lower.second)
 		++i2;
 	vector<pair<pdd, pdd>> seg1, seg2;
+	pair<pdd, pdd> skip = { {-INF, -INF}, {-INF, -INF} };
 	
 	do {
 		int nxt = (i1 + 1 >= mid + 1 ? l : i1 + 1);
 		seg1.push_back({ v[i1], v[nxt] });
 		i1 = nxt;
 	} while (v[i1] != upper.first);
+	if (seg1.front().first == seg1.back().second && seg1.size() > 1) {
+		seg1[0].first.second -= 0.2;
+		seg1[seg1.size() - 1].second.second += 0.2;
+
+		skip.first = seg1[0].first;
+		skip.second = seg1.back().second;
+	}
 
 	do {
 		int prv = (i2 - 1 <= mid ? r : i2 - 1);
 		seg2.push_back({ v[i2], v[prv] });
 		i2 = prv;
 	} while (v[i2] != upper.second);
+	if (seg2.front().first == seg2.back().second && seg2.size() > 1) {
+		seg2[0].first.second -= 0.2;
+		seg2[seg2.size() - 1].second.second += 0.2;
+
+		skip.first = seg2[0].first;
+		skip.second = seg2.back().second;
+	}
+		//seg2.pop_back();
 
 	double ar = DBL_MAX;
 	pair<pdd, pdd> u11, u22;
 	pair<pdd, pdd> u1, u2;
 
-	minimum_quadrilateral_brute(seg1, seg2, u1, u2);
+	//minimum_quadrilateral_brute(seg1, seg2, u1, u2);//2
 
 	//minimum_quadrilateral_visibility(seg1, seg2, upper, lower, u1, u2);
-
+	minimum_quadrilateral_visibility2(seg1, seg2, upper, lower, u1, u2, skip.first, skip.second);
 	/*cout << "4gon:\n";
 	cout << u1.fi.fi << " " << u1.fi.se << " " << u1.se.fi << " " << u1.se.se << endl;
 	cout << u2.fi.fi << " " << u2.fi.se << " " << u2.se.fi << " " << u2.se.se << endl;
@@ -533,4 +557,104 @@ vector<pdd> MinimumAreaPolygonization::solve(vector<pdd> & v, int l, int r) {
 
 inline double MinimumAreaPolygonization::det(double a, double b, double c, double d) {
 	return a * d - b * c;
+}
+
+void MinimumAreaPolygonization::minimum_quadrilateral_visibility2(vector<pair<pdd, pdd>> & seg_l, vector<pair<pdd, pdd>> & seg_r,
+	pair<pdd, pdd> & upperTangent, pair<pdd, pdd> & lowerTangent, pair<pdd, pdd> & u1, pair<pdd, pdd> & u2, 
+	pdd skip1, pdd skip2) {
+	vector<pdd> poly;
+	for (auto & seg : seg_r) {
+		poly.push_back(seg.first);
+	}
+	poly.push_back(seg_r.back().second);
+	int lim = poly.size();
+	for (int i = seg_l.size() - 1; i >= 0; --i) {
+		poly.push_back(seg_l[i].second);
+	}
+	poly.push_back(seg_l[0].first);
+
+	unordered_map<pdd, int, boost::hash<pdd>> ind;
+	unordered_set<pdd, boost::hash<pdd>> set;
+	for (int i = 0; i < lim; ++i) ind[poly[i]] = i;
+	vector<unordered_set<pdd, boost::hash<pdd>>> graph(lim);
+	for (int i = 0; i < lim ; ++i) {
+		vector<pdd> poly_for_cur_i{ poly[i] };
+		for (int j = i + 1; j < poly.size(); ++j) poly_for_cur_i.push_back(poly[j]);
+		for (int j = 0; j < i; ++j) poly_for_cur_i.push_back(poly[j]);
+
+	/*	QString filename = "Poly.txt";
+		QFile file(filename);
+		if (file.open(QIODevice::ReadWrite)) {
+			QTextStream stream(&file);
+			stream << "Polygon\n";
+			for (auto & p : poly_for_cur_i) 
+				stream << p.first << " " << p.second << endl;
+			stream << "...\n";
+		}
+		file.close();*/
+	//	qDebug() << "Failed poly:\n";
+	//	for (auto & p : poly_for_cur_i) qDebug() << p.first << " " << p.second << endl;
+	//	qDebug() << "End of the poly\n";
+		JoeSimpson js(poly_for_cur_i);
+		auto vp = js.run();  // 50 points , 11 ok 12th rip
+
+
+		int p1 = 1; // all points pointer
+		int p2 = 1; // visibility points pointer
+
+		while (p1 < poly_for_cur_i.size() && p2 < vp.size()) {
+			if (points_equal(poly_for_cur_i[p1], vp[p2])) {
+				graph[ind[poly[i]]].insert(poly_for_cur_i[p1]);
+				++p1;
+				++p2;
+			} else {
+				while (p1 < poly_for_cur_i.size() && p2 < vp.size() && !points_equal(poly_for_cur_i[p1], vp[p2])) {
+					++p1;
+				}
+			}
+			
+		}
+
+		int k = vp.size();
+	}
+	double minimum_area = DBL_MAX;
+	
+	for (auto s1 : seg_l) {
+		if (s1.first == skip1 || s1.first == skip2) continue;
+		if (s1.second == skip1 || s1.second == skip2) continue;
+		for (auto s2 : seg_r) {
+			if (s2.first == skip1 || s2.first == skip2) continue;
+			if (s2.second == skip1 || s2.second == skip2) continue;
+			/*
+			A*-------*B
+		s1	|		 |  s2
+			|		 |
+			C*-------*D
+			*/
+			pdd A = s1.first;
+			pdd C = s1.second;
+			pdd B = s2.first;
+			pdd D = s2.second;
+
+			if (intersect(A, B, C, D)) {
+				if (intersect(A, D, C, B)) {
+					continue;
+				}
+				swap(B, D);
+			}
+
+			bool can_see_a_from_b = graph[ind[B]].count(A) > 0;
+			bool can_see_c_from_d = graph[ind[D]].count(C) > 0;
+
+			if (can_see_a_from_b && can_see_c_from_d) {
+				vector<pdd> tetragon{ A, C, D, B };
+				double current_area = polygon_area(tetragon);
+				if (current_area < minimum_area) {
+					minimum_area = current_area;
+					u1 = { A, C };
+					u2 = { B, D };
+				}
+			}
+		}
+	}
 }

@@ -69,6 +69,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BasicGeometry.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_OGKG_Lab_Gui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -87,10 +88,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_Plot.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="JoeSimpson.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinimumAreaPolygonization.cpp" />
     <ClCompile Include="OGKG_Lab_Gui.cpp" />
     <ClCompile Include="Plot.cpp" />
+    <ClCompile Include="Visibility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="OGKG_Lab_Gui.h">
@@ -117,12 +120,15 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicGeometry.h" />
     <ClInclude Include="floats.hpp" />
     <ClInclude Include="GeneratedFiles\ui_OGKG_Lab_Gui.h" />
     <ClInclude Include="GeneratedFiles\ui_Plot.h" />
+    <ClInclude Include="JoeSimpson.h" />
     <ClInclude Include="MinimumAreaPolygonization.h" />
     <ClInclude Include="primitives.hpp" />
     <ClInclude Include="vector2.hpp" />
+    <ClInclude Include="Visibility.h" />
     <ClInclude Include="visibility.hpp" />
     <CustomBuild Include="Plot.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

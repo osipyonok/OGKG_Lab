@@ -49,12 +49,13 @@ void OGKG_Lab_Gui::run_algo_clicked(bool checked) {
 	try {
 		auto res = map.solve();
 		for (int i = 0; i < res.size(); ++i) {
-			qDebug() << "Segment " << res[i].first << " " << res[i].second << " " << res[(i + 1) % res.size()].first <<
-				" " << res[(i + 1) % res.size()].second << endl;
+		//	qDebug() << "Segment " << res[i].first << " " << res[i].second << " " << res[(i + 1) % res.size()].first <<
+		//		" " << res[(i + 1) % res.size()].second << endl;
 			ui.PlotWidget->drawLine(QLine(res[i].first, res[i].second, res[(i + 1) % res.size()].first, res[(i + 1) % res.size()].second));
 
 			ui.PlotWidget->repaint();
 		}
+		qDebug() << "Time, elapsed for visibility: " << map.elapsed1 << " " << map.elapsed2 << endl;
 	}
 	catch (string ex) {
 		QMessageBox mb(QString::fromLocal8Bit("Помикла"), 

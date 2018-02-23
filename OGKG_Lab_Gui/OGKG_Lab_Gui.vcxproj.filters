@@ -57,6 +57,15 @@
     <ClCompile Include="Plot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Visibility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JoeSimpson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="OGKG_Lab_Gui.h">
@@ -95,6 +104,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="visibility.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Visibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JoeSimpson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
