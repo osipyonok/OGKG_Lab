@@ -38,7 +38,7 @@ namespace BasicGeometry {
 		double b2 = D.first - C.first;
 		double c2 = C.first * D.second - D.first * C.second;
 
-		double x = 1488, y = 1488;
+		double x = INT_MAX, y = INT_MAX;
 
 		if (a1 != 0) {
 			if (-a2 * b1 + a1 * b2 != 0) {

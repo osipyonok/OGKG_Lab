@@ -52,9 +52,8 @@ void OGKG_Lab_Gui::run_algo_clicked(bool checked) {
 		//	qDebug() << "Segment " << res[i].first << " " << res[i].second << " " << res[(i + 1) % res.size()].first <<
 		//		" " << res[(i + 1) % res.size()].second << endl;
 			ui.PlotWidget->drawLine(QLine(res[i].first, res[i].second, res[(i + 1) % res.size()].first, res[(i + 1) % res.size()].second));
-
-			ui.PlotWidget->repaint();
 		}
+		ui.PlotWidget->repaint();
 		qDebug() << "Time, elapsed for visibility: " << map.elapsed1 << " " << map.elapsed2 << endl;
 	}
 	catch (string ex) {

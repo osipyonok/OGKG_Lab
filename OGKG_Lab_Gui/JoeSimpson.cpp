@@ -46,27 +46,27 @@ void JoeSimpson::prepare() {
 
 	auto tmp2 = tmp1;
 
-	double angle1 = angle({ poly[0].first + INF, poly[0].second }, poly[0], poly[1]);
 	double angle2 = angle({ poly[0].first + INF, poly[0].second }, poly[0], poly.back());
 
-	rotate_polygon(tmp1, angle1);
 	rotate_polygon(tmp2, angle2);
 
 	reverse(tmp2.begin() + 1, tmp2.end());
-
-	if (isCCW(tmp1)) {
-		poly = tmp1;
-		rotation_angle = angle1;
-		return;
-	}
 
 	if (isCCW(tmp2)) {
 		poly = tmp2;
 		rotation_angle = angle2;
 		return;
 	}
+	
+	double angle1 = angle({ poly[0].first + INF, poly[0].second }, poly[0], poly[1]);
 
-	qDebug() << "Αλÿδό\n";
+	rotate_polygon(tmp1, angle1);
+
+	if (isCCW(tmp1)) {
+		poly = tmp1;
+		rotation_angle = angle1;
+		return;
+	}
 }
 
 
