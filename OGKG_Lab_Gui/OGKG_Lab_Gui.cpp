@@ -4,6 +4,7 @@
 #include <qmessagebox.h>
 #include <QVector>
 
+
 OGKG_Lab_Gui::OGKG_Lab_Gui(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -14,9 +15,48 @@ OGKG_Lab_Gui::OGKG_Lab_Gui(QWidget *parent)
 	ui.newPointsAmount->setMinimum(0);
 	ui.newPointsAmount->setMaximum(15000);
 
+	/*
+	ui.PlotWidget->drawPoint(QPoint(60, 283));
+	ui.PlotWidget->drawPoint(QPoint(129, 352));
+	ui.PlotWidget->drawPoint(QPoint(52, 464));
+	ui.PlotWidget->drawPoint(QPoint(202, 474));
+	ui.PlotWidget->drawPoint(QPoint(154, 417));
+	
+	
+	ui.PlotWidget->drawPoint(QPoint(259, 450));
+	ui.PlotWidget->drawPoint(QPoint(294, 483));
+	ui.PlotWidget->drawPoint(QPoint(361, 483));
+	ui.PlotWidget->drawPoint(QPoint(275, 349));
+	ui.PlotWidget->drawPoint(QPoint(300, 447));
+	*/
+
+
 	connect(ui.runAlgorithm, SIGNAL(clicked(bool)), this, SLOT(run_algo_clicked(bool)));
 	connect(ui.PlotWidget, SIGNAL(pointAdded(QPoint)), this, SLOT(pointAdded(QPoint)));
 	connect(ui.generateButton, SIGNAL(clicked(bool)), this, SLOT(generateNewPoints()));
+	connect(ui.clearPoints, SIGNAL(clicked(bool)), this, SLOT(clearPoints()));
+}
+
+
+auto comp = [](const QPoint & a, const QPoint & b) { return a.x() < b.x() || (a.x() == b.x() && a.y() < b.y()); };
+set<QPoint, decltype(comp)> used_points(comp);
+
+set<QPoint, decltype(comp)>::iterator Prev(set<QPoint, decltype(comp)>::iterator & it) {
+	if (used_points.begin() == it) return used_points.end();
+	return prev(it);
+}
+
+
+set<QPoint, decltype(comp)>::iterator Next(set<QPoint, decltype(comp)>::iterator & it) {
+	if (used_points.end() == it) return it;
+	return next(it);
+}
+
+bool at_one_line(QPoint a, QPoint b, QPoint c) {
+	int A = a.y() - c.y();
+	int B = c.x() - a.x();
+	int C = a.x() * c.y() - c.x() * a.y();
+	return !(A * b.x() + B * b.y() + C);
 }
 
 void OGKG_Lab_Gui::generateNewPoints() {
@@ -26,14 +66,113 @@ void OGKG_Lab_Gui::generateNewPoints() {
 	while (n--) {
 		int x = rand() % x_max;
 		int y = rand() % y_max;
-		ui.PlotWidget->drawPoint(QPoint(x, y));
+		QPoint point(x, y);
+
+		auto it = used_points.lower_bound(point);
+		if (it != used_points.end() && *it == point) {
+			++n;
+			continue;
+		}
+
+		// prev2 prev1 point next1 next2
+
+		auto prev1 = Prev(it);
+		auto prev2 = Prev(prev1);
+
+		auto next1 = it;
+		auto next2 = Next(next1);
+
+		bool pr2pr1po, pr1pone1, pone1ne2;
+
+		if (prev1 == used_points.end() || prev2 == used_points.end()) {
+			pr2pr1po = true;
+		} else {
+			pr2pr1po = !at_one_line(*prev2, *prev1, point);
+		}
+
+		if (prev1 == used_points.end() || next1 == used_points.end()) {
+			pr1pone1 = true;
+		} else {
+			pr1pone1 = !at_one_line(*prev1, point, *next1);
+		}
+
+		if (next1 == used_points.end() || next2 == used_points.end()) {
+			pone1ne2 = true;
+		} else {
+			pone1ne2 = !at_one_line(point, *next1, *next2);
+		}
+
+		if (pr2pr1po && pr1pone1 && pone1ne2) {
+			//if (used_points.find(point) != used_points.end()) {
+			//	++n;
+			//	continue;
+			//}
+			used_points.insert(point);
+			ui.PlotWidget->drawPoint(point);
+		}
+		else ++n;
 	}
 	ui.PlotWidget->repaint();
 }
 
+
 void OGKG_Lab_Gui::pointAdded(QPoint point) {
 	qDebug() << "Added " << point << endl;
 }
+
+
+void OGKG_Lab_Gui::clearPoints() {
+	srand(0);
+
+	used_points.clear();
+	this->ui.PlotWidget->clearAll();
+	this->ui.PlotWidget->repaint();
+}
+
+
+void OGKG_Lab_Gui::save_as_png(const vector<pair<double, double>>& poly)
+{
+	double max_x = numeric_limits<double>::min();
+	double max_y = numeric_limits<double>::min();
+
+	for (const auto & e : poly) {
+		max_x = max(max_x, e.first);
+		max_y = max(max_y, e.second);
+	}
+
+	QImage image(QSize(max_x + 30, max_y + 30), QImage::Format_RGB32);
+	QPainter img_painter(&image);
+	img_painter.setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::SquareCap));
+	for (int i = 0; i < poly.size(); ++i) {
+	//	img_painter.drawLine(QLine(poly[i].first, poly[i].second, 
+	//			poly[(i + 1) % poly.size()].first, poly[(i + 1) % poly.size()].second));
+		
+	}
+
+
+	QPainterPath path;
+	path.moveTo(QPoint(poly[0].first, poly[0].second));
+	for (int i = 0; i < poly.size(); ++i){
+		path.lineTo(QPoint(poly[(i + 1) % poly.size()].first, poly[(i + 1) % poly.size()].second));
+	}
+	//img_painter.setPen(Qt::NoPen);
+	img_painter.fillPath(path, QBrush(QColor("green")));
+
+	//QPoint *pts = new QPoint[poly.size()];
+	//for (int i = 0; i < poly.size(); ++i) {
+	//	pts[i] = QPoint(poly[i].first, poly[i].second);
+	//}
+	//img_painter.drawPolygon(pts, poly.size(), Qt::WindingFill);
+
+
+	img_painter.setBrush(QBrush(Qt::red));
+	for (const auto & e : poly) {
+	//	img_painter.drawEllipse(QPoint(e.first, e.second), 2, 2);
+	}
+	img_painter.end();
+	image.save("Polygon.png");
+}
+
 
 void OGKG_Lab_Gui::run_algo_clicked(bool checked) {
 	auto points = ui.PlotWidget->getPoints();
@@ -48,13 +187,19 @@ void OGKG_Lab_Gui::run_algo_clicked(bool checked) {
 	MinimumAreaPolygonization map(v);
 	try {
 		auto res = map.solve();
+		ui.PlotWidget->clearAll();
 		for (int i = 0; i < res.size(); ++i) {
-		//	qDebug() << "Segment " << res[i].first << " " << res[i].second << " " << res[(i + 1) % res.size()].first <<
-		//		" " << res[(i + 1) % res.size()].second << endl;
-			ui.PlotWidget->drawLine(QLine(res[i].first, res[i].second, res[(i + 1) % res.size()].first, res[(i + 1) % res.size()].second));
+			if (res.size() > 250) {
+				res[i].first /= 5;
+				res[i].second /= 10;
+			}
+		}
+		for (int i = 0; i < res.size(); ++i) {
+			ui.PlotWidget->drawPoint(QPoint(res[i].first, res[i].second));
+			ui.PlotWidget->drawLine(QLine(res[i].first , res[i].second, res[(i + 1) % res.size()].first, res[(i + 1) % res.size()].second));
 		}
 		ui.PlotWidget->repaint();
-		qDebug() << "Time, elapsed for visibility: " << map.elapsed1 << " " << map.elapsed2 << endl;
+		save_as_png(res);
 	}
 	catch (string ex) {
 		QMessageBox mb(QString::fromLocal8Bit("Помикла"), 

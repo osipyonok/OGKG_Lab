@@ -42,7 +42,7 @@ void Plot::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton) {
 		auto p = event->pos();
-		auto add = QPoint(p.x(), this->size().height() - p.y());
+		auto add = QPoint(p.x(), /*this->size().height() -*/ p.y());
 		emit pointAdded(add);
 		this->drawPoint(add);
 		this->repaint();
@@ -51,7 +51,7 @@ void Plot::mousePressEvent(QMouseEvent *event)
 
 
 void Plot::drawPoint(const QPoint & point) {
-	this->pointsToDraw.push_back(QPoint(point.x(), this->size().height() - point.y()));
+	this->pointsToDraw.push_back(QPoint(point.x(), /*this->size().height() -*/ point.y()));
 }
 
 void Plot::drawLine(const QLine & line) {
@@ -68,8 +68,9 @@ void Plot::paintEvent(QPaintEvent *event) {
 	for (const auto & l : this->linesToDraw) {
 		int a = this->size().width() / 2 - this->target.x();
 		int b = this->size().height() / 2 - this->target.y();
-		QLine ll(l.x1() * this->scale_ratio + a, l.y1() * this->scale_ratio + b, 
-			l.x2() * this->scale_ratio + a, l.y2() * this->scale_ratio + b);
+		//QLine ll(l.x1() * this->scale_ratio + a, l.y1() * this->scale_ratio + b, 
+		//	l.x2() * this->scale_ratio + a, l.y2() * this->scale_ratio + b);
+
 		painter.drawLine(l);
 	}
 
@@ -78,7 +79,7 @@ void Plot::paintEvent(QPaintEvent *event) {
 		for (const auto & p : this->pointsToDraw) {
 			int a = this->size().width() / 2 - this->target.x();
 			int b = this->size().height() / 2 - this->target.y();
-			QPoint pp(p.x() * this->scale_ratio + a, p.y() * this->scale_ratio + b);
+			//QPoint pp(p.x() * this->scale_ratio + a, p.y() * this->scale_ratio + b);
 			painter.drawEllipse(p, 3 , 3);
 		}
 	}

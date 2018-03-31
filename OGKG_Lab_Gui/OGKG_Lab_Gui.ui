@@ -27,8 +27,8 @@
    <widget class="QPushButton" name="runAlgorithm">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>240</y>
+      <x>860</x>
+      <y>230</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -71,6 +71,19 @@
     </property>
     <property name="text">
      <string>Згенерувати</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="clearPoints">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>230</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Clear</string>
     </property>
    </widget>
   </widget>

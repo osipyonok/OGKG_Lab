@@ -21,9 +21,13 @@ MinimumAreaPolygonization::MinimumAreaPolygonization(vector<pdd> points)
 }
 
 vector<pdd> MinimumAreaPolygonization::solve() {
+	if (points.size() == 0) throw string("I need more points!");
+
 	preprocess(points);
 	if (points.size() <= 2) throw string("I need more points!");
 	solve(points, 0, points.size() - 1);
+
+
 	return points;
 }
 
@@ -521,14 +525,42 @@ void MinimumAreaPolygonization::preprocess(vector<pdd> & v) {
 	sort(v.begin(), v.end());
 
 	if (v.size() < 3) return;
+/*
+	map<pdd, pdd> mp1, mp2;
+
+	pdd mid = { 0, 0 };
+	for (const auto & e : v) {
+		mid.first += e.first;
+		mid.second += e.second;
+	}
+	mid.first /= v.size(), mid.second /= v.size();
+
+	for (const auto & e : v) {
+		double mx = e.first - mid.first;
+		double my = e.second - mid.second;
+#define sgn(a) (a >= 0.0 ? 1 : -1)
+		double d = sqrt(sqrt(mx * mx + my * my));
+		d = sqrt(d * log(log(d + 1) + 1));
+		double new_x = e.first + sgn(mx) * abs(mx) * d;
+		double new_y = e.second + sgn(my) * abs(my) * d;
+		mp1[e] = { new_x, new_y };
+		mp2[{ new_x, new_y }] = e;
+	}
+
+	for (int i = 0; i < v.size(); ++i) {
+		v[i] = mp1[v[i]];
+	}*/
 
 	vector<pdd> s = { v[0], v[1] };
 	for (int i = 2; i < v.size(); ++i) {
 		while (s.size() > 1) {
+			break;
+
 			int n = s.size();
 			pdd a = { s[n - 1].first - s[n - 2].first, s[n - 1].second - s[n - 2].second };
 			pdd b = { v[i].first - s[n - 1].first, v[i].second - s[n - 1].second };
-			if (v[i] == s.back() || abs(cos_angle(a, b) - 1) < eps) {
+			double an = cos_angle(a, b);
+			if (v[i] == s.back() || abs(an - 1) < eps) {
 				s.pop_back();
 			} else {
 				break;
@@ -536,6 +568,8 @@ void MinimumAreaPolygonization::preprocess(vector<pdd> & v) {
 		}
 		s.push_back(v[i]);
 	}
+
+	//qDebug() << "Removed " << v.size() - s.size() << " points";
 
 	v = s;
 }
@@ -595,9 +629,10 @@ void MinimumAreaPolygonization::minimum_quadrilateral_visibility2(vector<pair<pd
 	//	qDebug() << "Failed poly:\n";
 	//	for (auto & p : poly_for_cur_i) qDebug() << p.first << " " << p.second << endl;
 	//	qDebug() << "End of the poly\n";
+	//	qDebug() << "Before Joe";
 		JoeSimpson js(poly_for_cur_i);
 		auto vp = js.run();  // 50 points , 11 ok 12th rip
-
+	//	qDebug() << "After Joe";
 
 		int p1 = 1; // all points pointer
 		int p2 = 1; // visibility points pointer

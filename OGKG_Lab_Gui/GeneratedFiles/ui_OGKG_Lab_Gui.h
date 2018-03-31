@@ -35,6 +35,7 @@ public:
     QLabel *label;
     QSpinBox *newPointsAmount;
     QPushButton *generateButton;
+    QPushButton *clearPoints;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -51,7 +52,7 @@ public:
         PlotWidget->setGeometry(QRect(20, 20, 831, 821));
         runAlgorithm = new QPushButton(centralWidget);
         runAlgorithm->setObjectName(QStringLiteral("runAlgorithm"));
-        runAlgorithm->setGeometry(QRect(1030, 240, 93, 28));
+        runAlgorithm->setGeometry(QRect(860, 230, 93, 28));
         label = new QLabel(centralWidget);
         label->setObjectName(QStringLiteral("label"));
         label->setGeometry(QRect(860, 45, 151, 21));
@@ -61,6 +62,9 @@ public:
         generateButton = new QPushButton(centralWidget);
         generateButton->setObjectName(QStringLiteral("generateButton"));
         generateButton->setGeometry(QRect(1080, 40, 93, 31));
+        clearPoints = new QPushButton(centralWidget);
+        clearPoints->setObjectName(QStringLiteral("clearPoints"));
+        clearPoints->setGeometry(QRect(970, 230, 93, 28));
         OGKG_Lab_GuiClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(OGKG_Lab_GuiClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -84,6 +88,7 @@ public:
         runAlgorithm->setText(QApplication::translate("OGKG_Lab_GuiClass", "Run", nullptr));
         label->setText(QApplication::translate("OGKG_Lab_GuiClass", "\320\222\320\262\320\265\320\264i\321\202\321\214 \320\272i\320\273\321\214\320\272i\321\201\321\202\321\214 \321\202\320\276\321\207\320\276\320\272:", nullptr));
         generateButton->setText(QApplication::translate("OGKG_Lab_GuiClass", "\320\227\320\263\320\265\320\275\320\265\321\200\321\203\320\262\320\260\321\202\320\270", nullptr));
+        clearPoints->setText(QApplication::translate("OGKG_Lab_GuiClass", "Clear", nullptr));
     } // retranslateUi
 
 };
