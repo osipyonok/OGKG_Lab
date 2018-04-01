@@ -524,37 +524,13 @@ void MinimumAreaPolygonization::brute_optimal_polygon(vector<pdd> & v, int l, in
 void MinimumAreaPolygonization::preprocess(vector<pdd> & v) {
 	sort(v.begin(), v.end());
 
+	return;
+	/*
 	if (v.size() < 3) return;
-/*
-	map<pdd, pdd> mp1, mp2;
-
-	pdd mid = { 0, 0 };
-	for (const auto & e : v) {
-		mid.first += e.first;
-		mid.second += e.second;
-	}
-	mid.first /= v.size(), mid.second /= v.size();
-
-	for (const auto & e : v) {
-		double mx = e.first - mid.first;
-		double my = e.second - mid.second;
-#define sgn(a) (a >= 0.0 ? 1 : -1)
-		double d = sqrt(sqrt(mx * mx + my * my));
-		d = sqrt(d * log(log(d + 1) + 1));
-		double new_x = e.first + sgn(mx) * abs(mx) * d;
-		double new_y = e.second + sgn(my) * abs(my) * d;
-		mp1[e] = { new_x, new_y };
-		mp2[{ new_x, new_y }] = e;
-	}
-
-	for (int i = 0; i < v.size(); ++i) {
-		v[i] = mp1[v[i]];
-	}*/
 
 	vector<pdd> s = { v[0], v[1] };
 	for (int i = 2; i < v.size(); ++i) {
 		while (s.size() > 1) {
-			break;
 
 			int n = s.size();
 			pdd a = { s[n - 1].first - s[n - 2].first, s[n - 1].second - s[n - 2].second };
@@ -571,7 +547,7 @@ void MinimumAreaPolygonization::preprocess(vector<pdd> & v) {
 
 	//qDebug() << "Removed " << v.size() - s.size() << " points";
 
-	v = s;
+	v = s;*/
 }
 
 vector<pdd> MinimumAreaPolygonization::solve(vector<pdd> & v, int l, int r) {

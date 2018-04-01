@@ -52,24 +52,30 @@ set<QPoint, decltype(comp)>::iterator Next(set<QPoint, decltype(comp)>::iterator
 	return next(it);
 }
 
-bool at_one_line(QPoint a, QPoint b, QPoint c) {
+inline bool at_one_line(QPoint a, QPoint b, QPoint c) {
 	int A = a.y() - c.y();
 	int B = c.x() - a.x();
 	int C = a.x() * c.y() - c.x() * a.y();
 	return !(A * b.x() + B * b.y() + C);
 }
 
+inline bool scale_compare(const QPoint & p1, const QPoint & p2) {
+	return (p1 == p2) || (p1.x() / 5 == p2.x() / 5 && p1.y() / 10 && p2.y() / 10);
+}
+
 void OGKG_Lab_Gui::generateNewPoints() {
 	int n = ui.newPointsAmount->value();
 	int x_max = n + ui.PlotWidget->getPoints().size() > MAX_PONITS_TO_PLOT ? 50000 : (int)ui.PlotWidget->size().width();
 	int y_max = n + ui.PlotWidget->getPoints().size() > MAX_PONITS_TO_PLOT ? 50000 : (int)ui.PlotWidget->size().height();
+	
+
 	while (n--) {
 		int x = rand() % x_max;
 		int y = rand() % y_max;
 		QPoint point(x, y);
 
 		auto it = used_points.lower_bound(point);
-		if (it != used_points.end() && *it == point) {
+		if (it != used_points.end() && scale_compare(*it, point)) {
 			++n;
 			continue;
 		}
