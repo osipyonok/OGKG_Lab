@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <qpoint.h>
 
 #define PI 3.1415926535897932384626433832795028841971
 #define INF 10110101.0
@@ -29,6 +30,18 @@ namespace BasicGeometry {
 
 	pdd lines_intersect(const pdd & A, const pdd & B, const pdd & C, const pdd & D);
 
+	inline bool at_one_line(QPoint a, QPoint b, QPoint c) {
+		int A = a.y() - c.y();
+		int B = c.x() - a.x();
+		int C = a.x() * c.y() - c.x() * a.y();
+		return !(A * b.x() + B * b.y() + C);
+	}
+
+	inline bool at_one_line(const pdd & a, const pdd & b, const pdd & c) {
+		return at_one_line(QPoint(a.first, a.second), 
+						   QPoint(b.first, b.second), 
+						   QPoint(c.first, c.second));
+	}
 	
 	namespace SegmentIntersection {
 		inline bool  intersect_1(double & a, double & b, double & c, double & d) {

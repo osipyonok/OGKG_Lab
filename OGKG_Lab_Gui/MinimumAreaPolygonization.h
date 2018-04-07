@@ -62,5 +62,7 @@ private:
 
 	int lti1, lti2, uti1, uti2;
 
+	set<pdd> bannend_begins;
+
 };
 

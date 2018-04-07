@@ -524,20 +524,17 @@ void MinimumAreaPolygonization::brute_optimal_polygon(vector<pdd> & v, int l, in
 void MinimumAreaPolygonization::preprocess(vector<pdd> & v) {
 	sort(v.begin(), v.end());
 
-	return;
-	/*
+
 	if (v.size() < 3) return;
 
 	vector<pdd> s = { v[0], v[1] };
 	for (int i = 2; i < v.size(); ++i) {
 		while (s.size() > 1) {
-
-			int n = s.size();
-			pdd a = { s[n - 1].first - s[n - 2].first, s[n - 1].second - s[n - 2].second };
-			pdd b = { v[i].first - s[n - 1].first, v[i].second - s[n - 1].second };
-			double an = cos_angle(a, b);
-			if (v[i] == s.back() || abs(an - 1) < eps) {
+			size_t n = s.size();
+			if (v[i] == s.back() || at_one_line(s[n - 2], s[n - 1], v[i])) {
+				bannend_begins.erase(s.back());
 				s.pop_back();
+				bannend_begins.insert(v[i]);
 			} else {
 				break;
 			}
@@ -545,9 +542,9 @@ void MinimumAreaPolygonization::preprocess(vector<pdd> & v) {
 		s.push_back(v[i]);
 	}
 
-	//qDebug() << "Removed " << v.size() - s.size() << " points";
+	qDebug() << "Removed " << v.size() - s.size() << " points";
 
-	v = s;*/
+	v = s;
 }
 
 vector<pdd> MinimumAreaPolygonization::solve(vector<pdd> & v, int l, int r) {
@@ -559,6 +556,23 @@ vector<pdd> MinimumAreaPolygonization::solve(vector<pdd> & v, int l, int r) {
 		return hull;
 	} else {
 		int mid = (r + l) / 2;
+		
+		if (bannend_begins.count(v[mid + 1])) {
+			if (r - l + 1 == 6) {
+				brute_optimal_polygon(v, l, r);
+				vector<pdd> poly;
+				for (int i = l; i <= r; ++i)poly.push_back(v[i]);
+				auto hull = brute_hull(poly);
+				return hull;
+			}
+			else if (r - mid == 3) {
+				--mid;
+			}
+			else {
+				++mid;
+			}
+		}
+
 		auto lhull = solve(v, l, mid);
 		auto rhull = solve(v, mid + 1, r);
 		return merge_polygons(v, l, r, mid, lhull, rhull);

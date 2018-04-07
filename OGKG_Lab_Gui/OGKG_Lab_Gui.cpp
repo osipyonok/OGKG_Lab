@@ -3,6 +3,9 @@
 #include <QDebug>
 #include <qmessagebox.h>
 #include <QVector>
+#include <BasicGeometry.h>
+
+using namespace BasicGeometry;
 
 
 OGKG_Lab_Gui::OGKG_Lab_Gui(QWidget *parent)
@@ -11,9 +14,10 @@ OGKG_Lab_Gui::OGKG_Lab_Gui(QWidget *parent)
 	ui.setupUi(this);
 
 //	RANDOMIZE;
+	srand(time(0));
 
 	ui.newPointsAmount->setMinimum(0);
-	ui.newPointsAmount->setMaximum(15000);
+	ui.newPointsAmount->setMaximum(10000);
 
 	/*
 	ui.PlotWidget->drawPoint(QPoint(60, 283));
@@ -28,6 +32,14 @@ OGKG_Lab_Gui::OGKG_Lab_Gui(QWidget *parent)
 	ui.PlotWidget->drawPoint(QPoint(361, 483));
 	ui.PlotWidget->drawPoint(QPoint(275, 349));
 	ui.PlotWidget->drawPoint(QPoint(300, 447));
+	*/
+
+	/*
+	ui.PlotWidget->drawPoint(QPoint(100, 100));
+	ui.PlotWidget->drawPoint(QPoint(110, 110));
+	ui.PlotWidget->drawPoint(QPoint(120, 120));
+	ui.PlotWidget->drawPoint(QPoint(130, 130));
+	ui.PlotWidget->drawPoint(QPoint(220, 250));
 	*/
 
 
@@ -52,16 +64,6 @@ set<QPoint, decltype(comp)>::iterator Next(set<QPoint, decltype(comp)>::iterator
 	return next(it);
 }
 
-inline bool at_one_line(QPoint a, QPoint b, QPoint c) {
-	int A = a.y() - c.y();
-	int B = c.x() - a.x();
-	int C = a.x() * c.y() - c.x() * a.y();
-	return !(A * b.x() + B * b.y() + C);
-}
-
-inline bool scale_compare(const QPoint & p1, const QPoint & p2) {
-	return (p1 == p2) || (p1.x() / 5 == p2.x() / 5 && p1.y() / 10 && p2.y() / 10);
-}
 
 void OGKG_Lab_Gui::generateNewPoints() {
 	int n = ui.newPointsAmount->value();
@@ -75,7 +77,7 @@ void OGKG_Lab_Gui::generateNewPoints() {
 		QPoint point(x, y);
 
 		auto it = used_points.lower_bound(point);
-		if (it != used_points.end() && scale_compare(*it, point)) {
+		if (it != used_points.end() && *it == point) {
 			++n;
 			continue;
 		}
@@ -109,10 +111,6 @@ void OGKG_Lab_Gui::generateNewPoints() {
 		}
 
 		if (pr2pr1po && pr1pone1 && pone1ne2) {
-			//if (used_points.find(point) != used_points.end()) {
-			//	++n;
-			//	continue;
-			//}
 			used_points.insert(point);
 			ui.PlotWidget->drawPoint(point);
 		}
@@ -149,11 +147,6 @@ void OGKG_Lab_Gui::save_as_png(const vector<pair<double, double>>& poly)
 	QImage image(QSize(max_x + 30, max_y + 30), QImage::Format_RGB32);
 	QPainter img_painter(&image);
 	img_painter.setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::SquareCap));
-	for (int i = 0; i < poly.size(); ++i) {
-	//	img_painter.drawLine(QLine(poly[i].first, poly[i].second, 
-	//			poly[(i + 1) % poly.size()].first, poly[(i + 1) % poly.size()].second));
-		
-	}
 
 
 	QPainterPath path;
@@ -194,12 +187,7 @@ void OGKG_Lab_Gui::run_algo_clicked(bool checked) {
 	try {
 		auto res = map.solve();
 		ui.PlotWidget->clearAll();
-		for (int i = 0; i < res.size(); ++i) {
-			if (res.size() > 250) {
-				res[i].first /= 5;
-				res[i].second /= 10;
-			}
-		}
+
 		for (int i = 0; i < res.size(); ++i) {
 			ui.PlotWidget->drawPoint(QPoint(res[i].first, res[i].second));
 			ui.PlotWidget->drawLine(QLine(res[i].first , res[i].second, res[(i + 1) % res.size()].first, res[(i + 1) % res.size()].second));

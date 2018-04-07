@@ -161,7 +161,7 @@ void JoeSimpson::visibility_polygon(vector<JoeSimpsonPoint> & v, vector<JoeSimps
 
 void JoeSimpson::advance(vector<JoeSimpsonPoint> & v, vector<JoeSimpsonPoint> & s, vector<double> & a,
 	int & t, int & i, string & vpcase, bool & ccw, pdd & w) {
-
+	qDebug() << "IN ADVANCE\n";
 	while (vpcase == "advance") {
 		if (alpha[i + 2] <= 2 * PI) {
 			++i;
@@ -205,16 +205,17 @@ void JoeSimpson::advance(vector<JoeSimpsonPoint> & v, vector<JoeSimpsonPoint> & 
 
 void JoeSimpson::retard(vector<JoeSimpsonPoint> & v, vector<JoeSimpsonPoint> & s, vector<double> & a,
 	int & t, int & i, string & vpcase, bool & ccw, pdd & w) {
-
+	//qDebug() << "IN RETARD\n";
 	while (vpcase == "retard") {
 		int j = s.size() - 2;
 		bool case_a, case_b;
 		while (true) {
 			case_a = a[j] < alpha[i + 2] && alpha[i + 2] <= a[j + 1];
-			case_b = alpha[i + 2] <= a[j] && abs(a[j] - a[j + 1]) < 1e-10 
+			case_b = alpha[i + 2] <= a[j] && abs(a[j] - a[j + 1]) < 1e-7 
 				&& intersect(v[i + 1].point, v[i + 2].point, s[j].point, s[j + 1].point);
 			if (case_a || case_b) break;
 			--j;
+			//if (j < 0)qDebug() << "Found :(\n";
 		}
 		pdd last;
 		while (s[j] != s.back()) {
@@ -286,7 +287,7 @@ void JoeSimpson::retard(vector<JoeSimpsonPoint> & v, vector<JoeSimpsonPoint> & s
 
 void JoeSimpson::scan(vector<JoeSimpsonPoint> & v, vector<JoeSimpsonPoint> & s, vector<double> & a,
 	int & t, int & i, string & vpcase, bool & ccw, pdd & w) {
-
+	qDebug() << "IN SCAN\n";
 	while (vpcase == "scan")
 	{
 		++i;
